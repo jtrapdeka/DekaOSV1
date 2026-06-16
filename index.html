@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deka OS 26 · Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:       #0c1030;
+    --navy-mid:   #141840;
+    --navy-light: #1e2456;
+    --white:      #ffffff;
+    --off-white:  #f8f8fb;
+    --gray-50:    #f4f4f8;
+    --gray-100:   #e8e8f0;
+    --gray-300:   #c0c0d0;
+    --gray-500:   #7a7a94;
+    --gray-700:   #3a3a52;
+    --black:      #0d0d14;
+    --pink:       #e8528a;
+    --pink-light: #f472a8;
+    --purple:     #7c4fcc;
+    --purple-mid: #9b6dff;
+    --grad:       linear-gradient(135deg, #9b6dff 0%, #e8528a 100%);
+    --grad-text:  linear-gradient(135deg, #b87fff 0%, #f472a8 100%);
+    --teal:       #0891b2;
+    --green:      #059669;
+    --amber:      #d97706;
+    --red:        #dc2626;
+    --border:     #e2e2ec;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--off-white);
+    color: var(--black);
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER (dark navy, matches cover) ── */
+  .site-header {
+    background: var(--navy);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+
+  /* "Deka OS" — matches the PDF cover exactly */
+  .deka-wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--white);
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .deka-wordmark .os-part {
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 3px 8px;
+  }
+
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .header-nav span { color: rgba(255,255,255,0.3); }
+  .header-nav a {
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    transition: color 0.15s;
+    cursor: pointer;
+  }
+  .header-nav a:hover { color: white; }
+
+  /* ── HERO BAND (dark, like the cover's bottom meta strip) ── */
+  .hero-band {
+    background: var(--navy-mid);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    padding: 28px 40px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 6px;
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  .hero-title .os-grad {
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    color: rgba(255,255,255,0.45);
+    font-size: 13px;
+    margin-top: 8px;
+    max-width: 480px;
+  }
+
+  .hero-meta-grid {
+    display: flex;
+    gap: 24px;
+    flex-shrink: 0;
+  }
+  .hero-meta-item { text-align: right; }
+  .hero-meta-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+  }
+  .hero-meta-value.pink { background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-meta-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 600;
+    margin-top: 3px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { max-width: 1280px; margin: 0 auto; padding: 32px 40px 64px; }
+
+  /* ── SECTION HEADING (matches PDF interior style) ── */
+  .section-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 4px;
+  }
+  .section-heading {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+  /* The pink rule — straight from the PDF */
+  .section-rule {
+    width: 32px;
+    height: 3px;
+    background: var(--pink);
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  /* ── STAT CARDS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .stat-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  .stat-card-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--black);
+    line-height: 1;
+  }
+  .stat-card-value.grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-card-sub { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+  .stat-progress { margin-top: 10px; background: var(--gray-100); border-radius: 3px; height: 3px; }
+  .stat-progress-fill { height: 100%; border-radius: 3px; background: var(--grad); transition: width 0.7s ease; }
+
+  /* ── EDITION LOCK CARD (dark, high-contrast) ── */
+  .lock-card {
+    background: var(--navy);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+  .lock-icon { font-size: 22px; }
+  .lock-body { flex: 1; }
+  .lock-body strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: white;
+    margin-bottom: 3px;
+  }
+  .lock-body span { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .lock-days-wrap { text-align: right; }
+  .lock-days {
+    font-family: 'Syne', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    background: var(--grad-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .lock-days-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.3); margin-top: 3px; }
+
+  /* ── TWO-COL GRID ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 36px; }
+
+  /* ── PANEL (white card, PDF interior style) ── */
+  .panel {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-head-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--black);
+  }
+  .panel-head-meta { font-size: 11px; color: var(--gray-500); }
+
+  /* ── DELIVERABLES TABLE ── */
+  .deliverables-panel { margin-bottom: 36px; }
+  .del-header-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 96px 130px 100px;
+    gap: 10px;
+    padding: 10px 22px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--border);
+  }
+  .del-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 96px 130px 100px;
+    gap: 10px;
+    padding: 13px 22px;
+    border-bottom: 1px solid var(--gray-50);
+    align-items: center;
+    transition: background 0.1s;
+  }
+  .del-row:last-child { border-bottom: none; }
+  .del-row:hover { background: var(--gray-50); }
+
+  .del-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--purple);
+    background: rgba(124,79,204,0.08);
+    border-radius: 5px;
+    width: 32px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .del-name { font-size: 13px; font-weight: 500; color: var(--black); }
+  .del-due { font-size: 12px; color: var(--gray-500); }
+  .del-owner { font-size: 11px; color: var(--gray-500); }
+
+  /* Status pills — PDF editorial style */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+  .pill.todo    { color: var(--gray-500); background: var(--gray-100); }
+  .pill.active  { color: var(--purple);   background: rgba(124,79,204,0.1); }
+  .pill.done    { color: var(--green);    background: rgba(5,150,105,0.1); }
+  .pill.overdue { color: var(--red);      background: rgba(220,38,38,0.08); }
+  .pill.locked  { color: var(--pink);     background: rgba(232,82,138,0.1); }
+
+  /* ── TIMELINE ── */
+  .timeline-list { padding: 4px 0; }
+  .tl-item {
+    display: flex;
+    gap: 14px;
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--gray-50);
+    align-items: flex-start;
+  }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-left { width: 64px; flex-shrink: 0; text-align: right; }
+  .tl-date { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--teal); }
+  .tl-dot-col { width: 20px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; padding-top: 4px; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tl-dot.done    { background: var(--green); }
+  .tl-dot.active  { background: var(--purple); box-shadow: 0 0 0 3px rgba(124,79,204,0.2); }
+  .tl-dot.future  { background: var(--gray-100); border: 2px solid var(--gray-300); }
+  .tl-dot.critical{ background: var(--pink); box-shadow: 0 0 0 3px rgba(232,82,138,0.2); }
+  .tl-line { flex: 1; width: 1px; background: var(--gray-100); margin-top: 4px; }
+  .tl-body { flex: 1; padding-bottom: 2px; }
+  .tl-title { font-size: 13px; font-weight: 600; color: var(--black); }
+  .tl-desc  { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+
+  /* ── PIPELINE ── */
+  .pipe-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 22px;
+    border-bottom: 1px solid var(--gray-50);
+  }
+  .pipe-row:last-child { border-bottom: none; }
+  .pipe-station {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-500);
+    width: 80px;
+    flex-shrink: 0;
+  }
+  .pipe-name { font-size: 13px; font-weight: 500; flex: 1; }
+  .pipe-lane {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--teal);
+    background: rgba(8,145,178,0.08);
+    border-radius: 4px;
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  /* ── AI CHAT PANEL ── */
+  .ai-panel { margin-bottom: 36px; }
+  .ai-thread {
+    padding: 16px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 72px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .ai-bubble {
+    max-width: 88%;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .ai-bubble.assistant {
+    align-self: flex-start;
+    background: var(--gray-50);
+    border: 1px solid var(--border);
+    color: var(--black);
+  }
+  .ai-bubble.user {
+    align-self: flex-end;
+    background: var(--navy);
+    color: white;
+  }
+  .ai-bubble-role {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--purple);
+    margin-bottom: 4px;
+  }
+  .ai-bubble.user .ai-bubble-role { color: rgba(255,255,255,0.4); }
+  .ai-input-area {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--gray-50);
+  }
+  .ai-input {
+    flex: 1;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 13px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--black);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .ai-input:focus { border-color: var(--purple); }
+  .ai-input::placeholder { color: var(--gray-300); }
+  .ai-send {
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 9px 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .ai-send:hover { opacity: 0.8; }
+  .ai-send:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ── LOADING / ERROR ── */
+  .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 12px;
+    color: var(--gray-500);
+    font-size: 13px;
+  }
+  .spinner {
+    width: 20px; height: 20px;
+    border: 2px solid var(--gray-100);
+    border-top-color: var(--purple);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-msg {
+    margin: 12px 22px;
+    background: rgba(220,38,38,0.05);
+    border: 1px solid rgba(220,38,38,0.15);
+    border-radius: 7px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--red);
+  }
+
+  /* ── REFRESH BTN ── */
+  .refresh-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 11px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .refresh-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+  @media (max-width: 960px) {
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .del-header-row, .del-row { grid-template-columns: 36px 1fr 90px; }
+    .del-owner, .del-due { display: none; }
+    .hero-meta-grid { display: none; }
+    .main { padding: 24px 20px 48px; }
+    .site-header, .hero-band { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-left">
+    <div class="deka-wordmark">Deka <span class="os-part">OS</span></div>
+    <div class="header-badge">Internal · All Roles</div>
+  </div>
+  <nav class="header-nav">
+    <a>Deliverables</a>
+    <span>·</span>
+    <a>Pipeline</a>
+    <span>·</span>
+    <a>Runway</a>
+    <span>·</span>
+    <a>Ask</a>
+  </nav>
+</header>
+
+<!-- HERO BAND -->
+<div class="hero-band">
+  <div>
+    <div class="hero-eyebrow">Charter & Operating Framework · Draft for Ratification</div>
+    <div class="hero-title">Deka <span class="os-grad">OS 26</span></div>
+    <div class="hero-sub">Mission Control — every deliverable, milestone, and pipeline module tracked to Nashville · Oct 18.</div>
+  </div>
+  <div class="hero-meta-grid">
+    <div class="hero-meta-item">
+      <div class="hero-meta-value pink" id="days-to-nashville">—</div>
+      <div class="hero-meta-label">Days to Nashville</div>
+    </div>
+    <div class="hero-meta-item">
+      <div class="hero-meta-value" id="days-to-lock">—</div>
+      <div class="hero-meta-label">Days to Edition Lock</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-label">Overall Progress</div>
+      <div class="stat-card-value grad" id="stat-pct">—</div>
+      <div class="stat-progress"><div class="stat-progress-fill" id="stat-bar" style="width:0%"></div></div>
+      <div class="stat-card-sub" id="stat-sub">Loading…</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Deliverables Done</div>
+      <div class="stat-card-value" id="stat-deliverables">—</div>
+      <div class="stat-card-sub">of 12 total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Governance Tasks</div>
+      <div class="stat-card-value" id="stat-gov">—</div>
+      <div class="stat-card-sub">of 6 total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-label">Modules in Build</div>
+      <div class="stat-card-value" id="stat-modules">3</div>
+      <div class="stat-card-sub">in active pipeline</div>
+    </div>
+  </div>
+
+  <!-- EDITION LOCK CARD -->
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-body">
+      <strong>Edition Lock · Aug 23, 2026</strong>
+      <span>Scope freezes 8 weeks before Convention. The date never slips — scope does. Anything that misses Lock moves to 26.1.</span>
+    </div>
+    <div class="lock-days-wrap">
+      <div class="lock-days" id="lock-days-hero">—</div>
+      <div class="lock-days-label">days to lock</div>
+    </div>
+  </div>
+
+  <!-- AI ASSISTANT -->
+  <div class="section-eyebrow">Ask the project</div>
+  <div class="section-heading">Deka OS Assistant</div>
+  <div class="section-rule"></div>
+
+  <div class="panel ai-panel">
+    <div class="panel-head">
+      <div class="panel-head-title">Ask about OS 26</div>
+      <div class="panel-head-meta">Reads live ClickUp data · powered by Claude</div>
+    </div>
+    <div class="ai-thread" id="ai-thread">
+      <div class="ai-bubble assistant">
+        <div class="ai-bubble-role">Deka OS Assistant</div>
+        Ask me anything — deliverable status, blockers, who owns what, what's next before Edition Lock.
+      </div>
+    </div>
+    <div class="ai-input-area">
+      <input class="ai-input" id="ai-input" placeholder="What's blocking Edition Lock? Who owns the pilot network?" />
+      <button class="ai-send" id="ai-send-btn">Ask →</button>
+    </div>
+  </div>
+
+  <!-- DELIVERABLES -->
+  <div class="section-eyebrow">Part 9 · Deliverables</div>
+  <div class="section-heading">Deka OS 26 · 12 Deliverables</div>
+  <div class="section-rule"></div>
+
+  <div class="panel deliverables-panel" id="del-panel">
+    <div class="panel-head">
+      <div class="panel-head-title">Nashville Runway · Jun 30 → Oct 18</div>
+      <button class="refresh-btn" onclick="loadClickUpData()">↻ Refresh</button>
+    </div>
+    <div id="del-body">
+      <div class="loading-state"><div class="spinner"></div>Pulling from ClickUp…</div>
+    </div>
+  </div>
+
+  <!-- TIMELINE + PIPELINE -->
+  <div class="section-eyebrow">Operating Rhythm</div>
+  <div class="section-heading">The Runway & OS Pipeline</div>
+  <div class="section-rule"></div>
+
+  <div class="two-col">
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-title">The Runway — Jun → Oct 18</div>
+        <div class="panel-head-meta">~18 weeks</div>
+      </div>
+      <div class="timeline-list" id="timeline-body">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-head-title">OS Pipeline</div>
+        <div class="panel-head-meta" id="pipe-meta">3 modules in scope</div>
+      </div>
+      <div id="pipe-body">
+        <div class="loading-state"><div class="spinner"></div>Pulling from ClickUp…</div>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+// ── DATES ────────────────────────────────────────────────
+const NASHVILLE = new Date('2026-10-18');
+const LOCK_DATE = new Date('2026-08-23');
+const TODAY     = new Date();
+
+function daysUntil(d) { return Math.max(0, Math.ceil((d - TODAY) / 86400000)); }
+
+function initDates() {
+  document.getElementById('days-to-nashville').textContent = daysUntil(NASHVILLE);
+  document.getElementById('days-to-lock').textContent      = daysUntil(LOCK_DATE);
+  document.getElementById('lock-days-hero').textContent    = daysUntil(LOCK_DATE);
+}
+
+// ── TIMELINE (static — dates are fixed from charter) ────
+const MILESTONES = [
+  { date: '2026-06-30', label: 'Jun 30',    title: 'Charter Ratified',             desc: 'Roles named · Council seated · vendor selection begins' },
+  { date: '2026-07-11', label: 'Jul 11',    title: 'Governance Live',              desc: 'First OS Huddle · pipeline board up' },
+  { date: '2026-07-18', label: 'Jul 18',    title: 'Vendor Lanes Signed',          desc: 'AI SEO + AI Call Center SLAs executed' },
+  { date: '2026-08-01', label: 'Aug 1',     title: 'OS Catalog v1',               desc: 'Every module inventoried · pilot waves running' },
+  { date: '2026-08-23', label: 'Aug 23 🔒', title: 'Edition Lock',                desc: 'Scope frozen · certification & keynote mode begins', critical: true },
+  { date: '2026-09-12', label: 'Sep 12',    title: 'Pilot Results + Brand Kit',   desc: 'Headline proof stat locked · teaser campaign live' },
+  { date: '2026-09-26', label: 'Sep 26',    title: 'Training + Dashboard v1',     desc: 'OS-ready checklist · KPI pane live' },
+  { date: '2026-10-10', label: 'Oct 10',    title: 'Keynote + Onboarding Ready',  desc: 'Full run-through · pilot studios confirmed on stage' },
+  { date: '2026-10-18', label: 'Oct 18 🎤', title: 'Deka OS 26 Unveiled, Nashville', desc: 'Keynote · demo lab · enrollment opens', critical: true },
+];
+
+function renderTimeline() {
+  const html = MILESTONES.map((m, i) => {
+    const d = new Date(m.date);
+    const isPast   = d < TODAY && !m.critical;
+    const isToday  = Math.abs(d - TODAY) < 86400000;
+    const dotClass = m.critical ? 'critical' : isPast ? 'done' : isToday ? 'active' : 'future';
+    const isLast   = i === MILESTONES.length - 1;
+    return `<div class="tl-item">
+      <div class="tl-left"><div class="tl-date">${m.label}</div></div>
+      <div class="tl-dot-col">
+        <div class="tl-dot ${dotClass}"></div>
+        ${!isLast ? '<div class="tl-line" style="height:24px"></div>' : ''}
+      </div>
+      <div class="tl-body">
+        <div class="tl-title">${m.title}</div>
+        <div class="tl-desc">${m.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('timeline-body').innerHTML = html;
+}
+
+// ── STATUS HELPERS ───────────────────────────────────────
+function statusType(s, duets) {
+  const l = (s || '').toLowerCase();
+  if (l.includes('complete') || l.includes('done') || l.includes('closed')) return 'done';
+  if (l.includes('progress') || l.includes('active') || l.includes('review')) return 'active';
+  if (duets && new Date(parseInt(duets)) < TODAY) return 'overdue';
+  return 'todo';
+}
+
+function pill(type) {
+  const map = { todo:'To Do', active:'In Progress', done:'Done', overdue:'Overdue', locked:'Locked' };
+  return `<span class="pill ${type}"><span class="pill-dot"></span>${map[type]||type}</span>`;
+}
+
+function fmtDate(ts) {
+  if (!ts) return '—';
+  return new Date(parseInt(ts)).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+// ── DELIVERABLES RENDER ──────────────────────────────────
+const D_OWNERS = ['Platform Owner','Platform Owner','Lane Owners','Edition Mgr + Ops','Council','Field Ops','Edition Mgr','Training','Marketing','Marketing + Exec','Franchise Dev','Tech / Data'];
+const D_DATES  = ['Jun 30','Jul 11','Jul 18','Aug 1','Aug 23','Sep 12','Sep 19','Sep 26','Sep 12','Oct 10','Oct 10','Sep 26'];
+
+function renderDeliverables(tasks) {
+  let html = `<div class="del-header-row">
+    <div>#</div><div>Deliverable</div><div>Due</div><div>Owner</div><div>Status</div>
+  </div>`;
+  tasks.forEach((t, i) => {
+    const name = t.name.replace(/^D\d+\s*[·\.]\s*/,'');
+    const st   = i === 4 ? 'locked' : statusType(t.status, t.due_date);
+    html += `<div class="del-row">
+      <div class="del-num">D${i+1}</div>
+      <div class="del-name">${name}</div>
+      <div class="del-due">${D_DATES[i]||fmtDate(t.due_date)}</div>
+      <div class="del-owner">${D_OWNERS[i]||'—'}</div>
+      <div>${pill(st)}</div>
+    </div>`;
+  });
+  document.getElementById('del-body').innerHTML = html;
+}
+
+// ── PIPELINE RENDER ──────────────────────────────────────
+const P_STATIONS = ['Build → Pilot','Build → Pilot','Build','Parked → 26.1'];
+const P_LANES    = ['Attract · Retain','Convert · Experience','Operate','Various'];
+
+function renderPipeline(tasks) {
+  if (!tasks.length) { renderStaticPipeline(); return; }
+  let html = '';
+  tasks.forEach((t, i) => {
+    const name = t.name.replace(/^MODULE\s*·\s*/i,'').replace(/^26\.1 CANDIDATES.*$/i,'26.1 Parked Scope');
+    html += `<div class="pipe-row">
+      <div class="pipe-station">${P_STATIONS[i]||'—'}</div>
+      <div class="pipe-name">${name}</div>
+      <div class="pipe-lane">${P_LANES[i]||''}</div>
+    </div>`;
+  });
+  document.getElementById('pipe-body').innerHTML = html;
+  document.getElementById('pipe-meta').textContent = `${tasks.filter(t=>!t.name.toLowerCase().includes('26.1 cand')).length} modules in scope`;
+}
+
+function renderStaticPipeline() {
+  const rows = [
+    ['Build → Pilot','The Deka AI Engine','Attract · Retain'],
+    ['Build → Pilot','New Studio Flow (Booking + Check-in)','Convert · Experience'],
+    ['Build','The Platform Itself (Catalog + Cadence)','Operate'],
+    ['Parked → 26.1','26.1 Candidates (points, uniforms, dashboard v2)','Various'],
+  ];
+  document.getElementById('pipe-body').innerHTML = rows.map(([s,n,l])=>`
+    <div class="pipe-row">
+      <div class="pipe-station">${s}</div>
+      <div class="pipe-name">${n}</div>
+      <div class="pipe-lane">${l}</div>
+    </div>`).join('');
+}
+
+// ── STATS ────────────────────────────────────────────────
+function renderStats(delivs, govs) {
+  const dDone = delivs.filter(t=>statusType(t.status)==='done').length;
+  const gDone = govs.filter(t=>statusType(t.status)==='done').length;
+  const total = delivs.length + govs.length || 18;
+  const done  = dDone + gDone;
+  const pct   = Math.round(done/total*100);
+  document.getElementById('stat-pct').textContent = pct+'%';
+  document.getElementById('stat-bar').style.width = pct+'%';
+  document.getElementById('stat-sub').textContent = `${done} of ${total} tasks complete`;
+  document.getElementById('stat-deliverables').textContent = `${dDone}/12`;
+  document.getElementById('stat-gov').textContent = `${gDone}/${govs.length||6}`;
+}
+
+// ── LOAD FROM CLICKUP VIA CLAUDE ─────────────────────────
+async function loadClickUpData() {
+  document.getElementById('del-body').innerHTML = '<div class="loading-state"><div class="spinner"></div>Pulling from ClickUp…</div>';
+  document.getElementById('pipe-body').innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        messages: [{
+          role: "user",
+          content: `Fetch tasks from these ClickUp list IDs using clickup_filter_tasks and return ONLY a JSON object, no markdown:
+- list 901327583915 (deliverables)
+- list 901327583914 (governance)
+- list 901327583918 (pipeline)
+
+Return exactly: {"deliverables":[{"name":"...","status":"...","due_date":"..."}],"governance":[{"name":"...","status":"...","due_date":"..."}],"pipeline":[{"name":"...","status":"...","due_date":"..."}]}`
+        }],
+        mcp_servers: [{ type: "url", url: "https://mcp.clickup.com/mcp", name: "clickup" }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    const json = JSON.parse(text.replace(/```json|```/g,'').trim());
+
+    renderDeliverables(json.deliverables || []);
+    renderPipeline(json.pipeline || []);
+    renderStats(json.deliverables || [], json.governance || []);
+
+  } catch(e) {
+    console.error(e);
+    document.getElementById('del-body').innerHTML = `<div class="error-msg">⚠ Couldn't load live data: ${e.message} — showing static fallback.</div>` + renderStaticDeliverablesFallback();
+    renderStaticPipeline();
+    renderStats([], []);
+  }
+}
+
+function renderStaticDeliverablesFallback() {
+  const rows = [
+    'Ratified Charter','Governance Live','Vendor Lanes Signed','OS Catalog v1','Edition Lock 🔒',
+    'Pilot Results','Edition Notes','Training & Certification','Brand & Naming Kit',
+    'Convention Keynote + Demo Lab','Franchisee Onboarding Path','Dashboard v1'
+  ];
+  let h = `<div class="del-header-row"><div>#</div><div>Deliverable</div><div>Due</div><div>Owner</div><div>Status</div></div>`;
+  rows.forEach((name,i) => {
+    const st = i === 4 ? 'locked' : 'todo';
+    h += `<div class="del-row">
+      <div class="del-num">D${i+1}</div>
+      <div class="del-name">${name}</div>
+      <div class="del-due">${D_DATES[i]}</div>
+      <div class="del-owner">${D_OWNERS[i]}</div>
+      <div>${pill(st)}</div>
+    </div>`;
+  });
+  document.getElementById('del-body').innerHTML = h;
+  return '';
+}
+
+// ── AI CHAT ──────────────────────────────────────────────
+const aiHistory = [];
+
+async function sendAiMsg() {
+  const inp = document.getElementById('ai-input');
+  const btn = document.getElementById('ai-send-btn');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  btn.disabled = true;
+
+  appendBubble('user', msg);
+  aiHistory.push({ role: 'user', content: msg });
+
+  const typingEl = appendBubble('assistant', '<div class="spinner" style="width:14px;height:14px;margin:3px 0"></div>');
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: `You are a concise project assistant for Deka OS 26 — a franchise operating system for the Deka brand (DekaLash + Deka+), launching at National Convention in Nashville on October 18, 2026. Edition Lock is August 23. The mantra: "Corporate ships the OS. Franchisees run their business on it." Use the ClickUp MCP for live task data. Answer in 2–4 sentences unless a list is clearer.`,
+        messages: aiHistory,
+        mcp_servers: [{ type: "url", url: "https://mcp.clickup.com/mcp", name: "clickup" }]
+      })
+    });
+
+    const data = await res.json();
+    const reply = data.content.filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+    typingEl.innerHTML = `<div class="ai-bubble-role">Deka OS Assistant</div>${reply}`;
+    aiHistory.push({ role: 'assistant', content: reply });
+
+  } catch(e) {
+    typingEl.innerHTML = `<div class="ai-bubble-role">Error</div>${e.message}`;
+  }
+
+  btn.disabled = false;
+  const thread = document.getElementById('ai-thread');
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function appendBubble(role, html) {
+  const thread = document.getElementById('ai-thread');
+  const div = document.createElement('div');
+  div.className = `ai-bubble ${role}`;
+  if (role === 'assistant') div.innerHTML = `<div class="ai-bubble-role">Deka OS Assistant</div>${html}`;
+  else div.textContent = html;
+  thread.appendChild(div);
+  thread.scrollTop = thread.scrollHeight;
+  return div;
+}
+
+document.getElementById('ai-send-btn').addEventListener('click', sendAiMsg);
+document.getElementById('ai-input').addEventListener('keydown', e => { if (e.key==='Enter') sendAiMsg(); });
+
+// ── INIT ─────────────────────────────────────────────────
+initDates();
+renderTimeline();
+loadClickUpData();
+</script>
+</body>
+</html>
