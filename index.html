@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deka OS 26 · Mission Control</title>
+<style>
+  /* System font stack — no external dependency, no stretch */
+  :root {
+    --font-display: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    --font-body:    -apple-system, "SF Pro Text",    "Helvetica Neue", Arial, sans-serif;
+
+    --navy:      #0c1030;
+    --navy-mid:  #141840;
+    --white:     #ffffff;
+    --off-white: #f7f7fb;
+    --gray-50:   #f4f4f8;
+    --gray-100:  #e8e8f0;
+    --gray-300:  #bebece;
+    --gray-500:  #78788c;
+    --gray-700:  #38384e;
+    --black:     #0d0d18;
+    --pink:      #e8528a;
+    --purple:    #7c4fcc;
+    --teal:      #0891b2;
+    --green:     #059669;
+    --red:       #dc2626;
+    --amber:     #d97706;
+    --border:    #e2e2ec;
+
+    /* Gradient used sparingly for the OS wordmark and key numbers */
+    --grad: linear-gradient(130deg, #9b6dff 0%, #e8528a 100%);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--off-white);
+    color: var(--black);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── HEADER ───────────────────────────────────────────── */
+  .site-header {
+    background: var(--navy);
+    height: 56px;
+    padding: 0 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .wordmark {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+    color: white;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  .wordmark-os {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header-pill {
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+  }
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .header-nav a { color: rgba(255,255,255,0.5); text-decoration: none; cursor: pointer; }
+  .header-nav a:hover { color: white; }
+
+  /* ── HERO ─────────────────────────────────────────────── */
+  .hero {
+    background: var(--navy-mid);
+    padding: 24px 36px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .hero-eyebrow {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--pink);
+    margin-bottom: 6px;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    color: white;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .hero-title-grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.4);
+    max-width: 420px;
+  }
+  .hero-counters { display: flex; gap: 32px; flex-shrink: 0; }
+  .hero-counter { text-align: right; }
+  .hero-counter-num {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    color: white;
+  }
+  .hero-counter-num.grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-counter-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    margin-top: 3px;
+  }
+
+  /* ── MAIN ─────────────────────────────────────────────── */
+  .main { max-width: 1200px; margin: 0 auto; padding: 32px 36px 64px; }
+
+  /* ── SECTION LABEL (PDF eyebrow + rule style) ─────────── */
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 4px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+    color: var(--black);
+    margin-bottom: 6px;
+  }
+  .section-rule {  /* the pink underline from the PDF */
+    width: 28px;
+    height: 3px;
+    background: var(--pink);
+    border-radius: 2px;
+    margin-bottom: 20px;
+  }
+
+  /* ── STAT CARDS ───────────────────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .stat {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: var(--font-display);
+    font-size: 38px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1;
+    color: var(--black);
+  }
+  .stat-value.grad {
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-sub { font-size: 12px; color: var(--gray-500); margin-top: 6px; }
+  .stat-bar-track { margin-top: 10px; height: 3px; background: var(--gray-100); border-radius: 2px; }
+  .stat-bar-fill  { height: 100%; border-radius: 2px; background: var(--grad); transition: width .6s ease; }
+
+  /* ── LOCK BANNER ──────────────────────────────────────── */
+  .lock-banner {
+    background: var(--navy);
+    border-radius: 10px;
+    padding: 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .lock-icon { font-size: 20px; }
+  .lock-text { flex: 1; }
+  .lock-text strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 800;
+    color: white;
+    letter-spacing: -0.3px;
+    margin-bottom: 3px;
+  }
+  .lock-text span { font-size: 12px; color: rgba(255,255,255,0.38); }
+  .lock-count-num {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .lock-count-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.28);
+    text-align: right;
+    margin-top: 3px;
+  }
+
+  /* ── PANEL (white card) ───────────────────────────────── */
+  .panel { background: var(--white); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .panel-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-head-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--black);
+  }
+  .panel-head-meta { font-size: 11px; color: var(--gray-500); }
+
+  /* ── DELIVERABLES TABLE ───────────────────────────────── */
+  .del-panel { margin-bottom: 28px; }
+  .del-head-row, .del-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 88px 140px 102px;
+    gap: 10px;
+    padding: 11px 20px;
+    align-items: center;
+  }
+  .del-head-row {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    border-bottom: 1px solid var(--border);
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .del-row { border-bottom: 1px solid var(--gray-50); transition: background .1s; }
+  .del-row:last-child { border-bottom: none; }
+  .del-row:hover { background: var(--gray-50); }
+
+  .del-badge {
+    width: 30px;
+    height: 24px;
+    background: rgba(124,79,204,0.09);
+    color: var(--purple);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+  }
+  .del-name  { font-size: 13px; font-weight: 500; color: var(--black); }
+  .del-due   { font-size: 12px; color: var(--gray-500); }
+  .del-owner { font-size: 11px; color: var(--gray-500); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Status pills */
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; white-space: nowrap;
+  }
+  .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .pill.todo    { color: var(--gray-500); background: var(--gray-100); }
+  .pill.active  { color: var(--purple);   background: rgba(124,79,204,0.1); }
+  .pill.done    { color: var(--green);    background: rgba(5,150,105,0.1); }
+  .pill.overdue { color: var(--red);      background: rgba(220,38,38,0.08); }
+  .pill.locked  { color: var(--pink);     background: rgba(232,82,138,0.1); }
+
+  /* ── TWO-COL ──────────────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+
+  /* ── TIMELINE ─────────────────────────────────────────── */
+  .tl-item {
+    display: flex;
+    gap: 0;
+    padding: 11px 20px;
+    border-bottom: 1px solid var(--gray-50);
+    align-items: flex-start;
+  }
+  .tl-item:last-child { border-bottom: none; }
+  .tl-date-col {
+    width: 52px;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--teal);
+    padding-top: 2px;
+  }
+  .tl-dot-wrap {
+    width: 24px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 4px;
+  }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tl-dot.done     { background: var(--green); }
+  .tl-dot.future   { background: var(--gray-100); border: 2px solid var(--gray-300); }
+  .tl-dot.critical { background: var(--pink); box-shadow: 0 0 0 3px rgba(232,82,138,0.18); }
+  .tl-dot.active   { background: var(--purple); box-shadow: 0 0 0 3px rgba(124,79,204,0.18); }
+  .tl-body { flex: 1; padding-left: 8px; }
+  .tl-title { font-size: 13px; font-weight: 600; color: var(--black); }
+  .tl-desc  { font-size: 11px; color: var(--gray-500); margin-top: 1px; }
+
+  /* ── PIPELINE ─────────────────────────────────────────── */
+  .pipe-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--gray-50);
+  }
+  .pipe-row:last-child { border-bottom: none; }
+  .pipe-station {
+    width: 82px;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--gray-500);
+  }
+  .pipe-name { flex: 1; font-size: 13px; font-weight: 500; color: var(--black); }
+  .pipe-lane {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--teal);
+    background: rgba(8,145,178,0.08);
+    border-radius: 4px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  /* ── AI CHAT ──────────────────────────────────────────── */
+  .ai-panel { margin-bottom: 28px; }
+  .ai-thread {
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .bubble {
+    max-width: 88%;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .bubble.bot  { align-self: flex-start; background: var(--gray-50); border: 1px solid var(--border); }
+  .bubble.user { align-self: flex-end;   background: var(--navy);    color: white; }
+  .bubble-from {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--purple);
+    margin-bottom: 4px;
+  }
+  .ai-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--gray-50);
+  }
+  .ai-bar input {
+    flex: 1;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 13px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--black);
+    outline: none;
+  }
+  .ai-bar input:focus { border-color: var(--purple); }
+  .ai-bar input::placeholder { color: var(--gray-300); }
+  .ai-bar button {
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .ai-bar button:hover { background: #1e2456; }
+  .ai-bar button:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* ── SYNC NOTICE ──────────────────────────────────────── */
+  .sync-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 20px;
+    background: rgba(124,79,204,0.04);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--gray-500);
+  }
+  .sync-bar a { color: var(--purple); text-decoration: none; font-weight: 600; }
+
+  /* ── LOADING / SPINNER ────────────────────────────────── */
+  .loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 36px; color: var(--gray-500); font-size: 13px; }
+  .spin { width: 18px; height: 18px; border: 2px solid var(--gray-100); border-top-color: var(--purple); border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 860px) {
+    .stats-grid    { grid-template-columns: 1fr 1fr; }
+    .two-col       { grid-template-columns: 1fr; }
+    .hero-counters { display: none; }
+    .del-head-row, .del-row { grid-template-columns: 36px 1fr 90px; }
+    .del-owner, .del-due { display: none; }
+    .main, .site-header, .hero { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <div class="wordmark">Deka <span class="wordmark-os">OS</span></div>
+    <div class="header-pill">Internal · All Roles</div>
+  </div>
+  <nav class="header-nav">
+    <a>Deliverables</a> <span>·</span>
+    <a>Pipeline</a>     <span>·</span>
+    <a>Runway</a>       <span>·</span>
+    <a>Ask</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <div>
+    <div class="hero-eyebrow">Charter & Operating Framework · Draft for Ratification</div>
+    <div class="hero-title">Deka <span class="hero-title-grad">OS 26</span></div>
+    <div class="hero-sub">Mission Control — every deliverable, milestone, and pipeline module tracked to Nashville · Oct 18.</div>
+  </div>
+  <div class="hero-counters">
+    <div class="hero-counter">
+      <div class="hero-counter-num grad" id="cnt-nashville">—</div>
+      <div class="hero-counter-label">Days to Nashville</div>
+    </div>
+    <div class="hero-counter">
+      <div class="hero-counter-num" id="cnt-lock">—</div>
+      <div class="hero-counter-label">Days to Edition Lock</div>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat">
+      <div class="stat-label">Overall Progress</div>
+      <div class="stat-value grad" id="s-pct">0%</div>
+      <div class="stat-bar-track"><div class="stat-bar-fill" id="s-bar" style="width:0%"></div></div>
+      <div class="stat-sub" id="s-sub">0 of 18 tasks complete</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Deliverables Done</div>
+      <div class="stat-value" id="s-del">0/12</div>
+      <div class="stat-sub">of 12 total</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Governance Tasks</div>
+      <div class="stat-value" id="s-gov">0/6</div>
+      <div class="stat-sub">of 6 total</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Modules in Build</div>
+      <div class="stat-value">3</div>
+      <div class="stat-sub">in active pipeline</div>
+    </div>
+  </div>
+
+  <!-- LOCK BANNER -->
+  <div class="lock-banner">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-text">
+      <strong>Edition Lock · Aug 23, 2026</strong>
+      <span>Scope freezes 8 weeks before Convention. The date never slips — scope does. Anything that misses Lock moves to 26.1.</span>
+    </div>
+    <div>
+      <div class="lock-count-num" id="lock-cnt">—</div>
+      <div class="lock-count-label">Days to lock</div>
+    </div>
+  </div>
+
+  <!-- AI ASSISTANT -->
+  <div class="section-label">Ask the project</div>
+  <div class="section-title">Deka OS Assistant</div>
+  <div class="section-rule"></div>
+
+  <div class="panel ai-panel">
+    <div class="panel-head">
+      <div class="panel-head-title">Ask about OS 26</div>
+      <div class="panel-head-meta">Reads live ClickUp data · powered by Claude</div>
+    </div>
+    <div class="ai-thread" id="ai-thread">
+      <div class="bubble bot">
+        <div class="bubble-from">Deka OS Assistant</div>
+        Ask me anything — deliverable status, blockers, who owns what, what's next before Edition Lock.
+      </div>
+    </div>
+    <div class="ai-bar">
+      <input id="ai-in" placeholder="What's blocking Edition Lock? Who owns training?" />
+      <button id="ai-btn">Ask →</button>
+    </div>
+  </div>
+
+  <!-- DELIVERABLES -->
+  <div class="section-label">Part 9 · Deliverables</div>
+  <div class="section-title">Deka OS 26 · 12 Deliverables</div>
+  <div class="section-rule"></div>
+
+  <div class="panel del-panel">
+    <div class="panel-head">
+      <div class="panel-head-title">Nashville Runway · Jun 30 → Oct 18</div>
+      <div class="panel-head-meta" id="sync-ts">Synced from ClickUp · Jun 16, 2026</div>
+    </div>
+    <div id="del-body"></div>
+  </div>
+
+  <!-- TIMELINE + PIPELINE -->
+  <div class="section-label">Operating Rhythm</div>
+  <div class="section-title">The Runway & OS Pipeline</div>
+  <div class="section-rule"></div>
+
+  <div class="two-col">
+    <div class="panel"><div class="panel-head"><div class="panel-head-title">The Runway</div><div class="panel-head-meta">Jun → Oct 18 · ~18 weeks</div></div><div id="tl-body"></div></div>
+    <div class="panel"><div class="panel-head"><div class="panel-head-title">OS Pipeline</div><div class="panel-head-meta">3 modules in scope</div></div><div id="pipe-body"></div></div>
+  </div>
+
+</main>
+
+<script>
+// ── DATA (baked in from ClickUp pull on Jun 16 2026) ──────
+// Status key: pre-open = not started yet
+const TASKS = {
+  deliverables: [
+    { name:"Ratified Charter",                        status:"pre-open", due:"Jun 30", clickup:"https://app.clickup.com/t/86aj2r9w2" },
+    { name:"Governance Live",                         status:"pre-open", due:"Jul 11", clickup:"https://app.clickup.com/t/86aj2r9yn" },
+    { name:"Vendor Lanes Signed",                     status:"pre-open", due:"Jul 18", clickup:"https://app.clickup.com/t/86aj2ra1j" },
+    { name:"OS Catalog v1",                           status:"pre-open", due:"Aug 1",  clickup:"https://app.clickup.com/t/86aj2ra57" },
+    { name:"Edition Lock 🔒",                         status:"pre-open", due:"Aug 23", clickup:"https://app.clickup.com/t/86aj2raba", isLock:true },
+    { name:"Pilot Results",                           status:"pre-open", due:"Sep 12", clickup:"https://app.clickup.com/t/86aj2rag3" },
+    { name:"Edition Notes",                           status:"pre-open", due:"Sep 19", clickup:"https://app.clickup.com/t/86aj2ramz" },
+    { name:"Training & Certification Materials",      status:"pre-open", due:"Sep 26", clickup:"https://app.clickup.com/t/86aj2rawq" },
+    { name:"Brand & Naming Kit",                      status:"pre-open", due:"Sep 12", clickup:"https://app.clickup.com/t/86aj2razy" },
+    { name:"Convention Keynote + Demo Lab",           status:"pre-open", due:"Oct 10", clickup:"https://app.clickup.com/t/86aj2rb3v" },
+    { name:"Franchisee Onboarding Path",              status:"pre-open", due:"Oct 10", clickup:"https://app.clickup.com/t/86aj2rb7j" },
+    { name:"Dashboard v1 (Lane KPIs per Studio)",     status:"pre-open", due:"Sep 26", clickup:"https://app.clickup.com/t/86aj2rbaw" },
+  ],
+  governance: [
+    { name:"Ratify the Deka OS Charter",                          status:"pre-open", due:"Jun 30" },
+    { name:"Confirm version naming: Edition / Update / Refinement", status:"pre-open", due:"Jun 30" },
+    { name:"Name Platform Owner, Edition Manager & Lane Owners",  status:"pre-open", due:"Jun 30" },
+    { name:"Seat the OS Council & schedule weekly OS Huddle",     status:"pre-open", due:"Jul 11" },
+    { name:"Select Pilot Network studios (3–5 demo + controls)",  status:"pre-open", due:"Jul 11" },
+    { name:"Select & sign the two open vendors (AI SEO + AI Call Center)", status:"pre-open", due:"Jul 18" },
+  ],
+  pipeline: [
+    { name:"The Deka AI Engine",                     station:"Build → Pilot", lane:"Attract · Retain",      clickup:"https://app.clickup.com/t/86aj2rbdj" },
+    { name:"New Studio Flow (Booking + Check-in)",   station:"Build → Pilot", lane:"Convert · Experience",  clickup:"https://app.clickup.com/t/86aj2rbha" },
+    { name:"The Platform Itself (Catalog + Cadence)",station:"Build",         lane:"Operate",               clickup:"https://app.clickup.com/t/86aj2rbmg" },
+    { name:"26.1 Candidates (points, uniforms…)",    station:"Parked → 26.1", lane:"Various",               clickup:"https://app.clickup.com/t/86aj2rbut" },
+  ]
+};
+
+const OWNERS = ['Platform Owner','Platform Owner','Lane Owners','Edition Mgr + Ops','Council',
+                'Field Ops','Edition Mgr','Training','Marketing','Marketing + Exec','Franchise Dev','Tech / Data'];
+
+// ── DATES ────────────────────────────────────────────────
+const TODAY     = new Date();
+const NASHVILLE = new Date('2026-10-18');
+const LOCK      = new Date('2026-08-23');
+const daysUntil = d => Math.max(0, Math.ceil((d - TODAY) / 86400000));
+
+function initDates() {
+  document.getElementById('cnt-nashville').textContent = daysUntil(NASHVILLE);
+  document.getElementById('cnt-lock').textContent      = daysUntil(LOCK);
+  document.getElementById('lock-cnt').textContent      = daysUntil(LOCK);
+}
+
+// ── STATUS ───────────────────────────────────────────────
+function pillFor(t) {
+  if (t.isLock) return `<span class="pill locked"><span class="pill-dot"></span>Locked Aug 23</span>`;
+  const s = (t.status||'').toLowerCase();
+  if (s.includes('complet')||s.includes('done')||s.includes('closed'))
+    return `<span class="pill done"><span class="pill-dot"></span>Done</span>`;
+  if (s.includes('progress')||s.includes('active'))
+    return `<span class="pill active"><span class="pill-dot"></span>In Progress</span>`;
+  return `<span class="pill todo"><span class="pill-dot"></span>To Do</span>`;
+}
+
+function countDone(arr) {
+  return arr.filter(t => {
+    const s = (t.status||'').toLowerCase();
+    return s.includes('complet')||s.includes('done')||s.includes('closed');
+  }).length;
+}
+
+// ── RENDER DELIVERABLES ──────────────────────────────────
+function renderDeliverables() {
+  let h = `<div class="del-head-row"><div>#</div><div>Deliverable</div><div>Due</div><div>Owner</div><div>Status</div></div>`;
+  TASKS.deliverables.forEach((t,i) => {
+    const link = t.clickup ? `<a href="${t.clickup}" target="_blank" style="color:inherit;text-decoration:none">${t.name}</a>` : t.name;
+    h += `<div class="del-row">
+      <div class="del-badge">D${i+1}</div>
+      <div class="del-name">${link}</div>
+      <div class="del-due">${t.due}</div>
+      <div class="del-owner">${OWNERS[i]}</div>
+      <div>${pillFor(t)}</div>
+    </div>`;
+  });
+  document.getElementById('del-body').innerHTML = h;
+}
+
+// ── RENDER PIPELINE ──────────────────────────────────────
+function renderPipeline() {
+  const h = TASKS.pipeline.map(t => `<div class="pipe-row">
+    <div class="pipe-station">${t.station}</div>
+    <div class="pipe-name">${t.clickup ? `<a href="${t.clickup}" target="_blank" style="color:inherit;text-decoration:none">${t.name}</a>` : t.name}</div>
+    <div class="pipe-lane">${t.lane}</div>
+  </div>`).join('');
+  document.getElementById('pipe-body').innerHTML = h;
+}
+
+// ── RENDER TIMELINE ──────────────────────────────────────
+const MILESTONES = [
+  { date:'2026-06-30', label:'Jun 30',    title:'Charter Ratified',              desc:'Roles named · Council seated · vendor selection begins' },
+  { date:'2026-07-11', label:'Jul 11',    title:'Governance Live',               desc:'First OS Huddle · pipeline board up' },
+  { date:'2026-07-18', label:'Jul 18',    title:'Vendor Lanes Signed',           desc:'AI SEO + AI Call Center SLAs executed' },
+  { date:'2026-08-01', label:'Aug 1',     title:'OS Catalog v1',                 desc:'Every module inventoried · pilot waves running' },
+  { date:'2026-08-23', label:'Aug 23 🔒', title:'Edition Lock',                  desc:'Scope frozen · certification & keynote mode begins', critical:true },
+  { date:'2026-09-12', label:'Sep 12',    title:'Pilot Results + Brand Kit',     desc:'Proof stat locked · teaser campaign live' },
+  { date:'2026-09-26', label:'Sep 26',    title:'Training + Dashboard v1',       desc:'OS-ready checklist · KPI pane live' },
+  { date:'2026-10-10', label:'Oct 10',    title:'Keynote + Onboarding Ready',    desc:'Full run-through · pilot studios confirmed on stage' },
+  { date:'2026-10-18', label:'Oct 18 🎤', title:'Deka OS 26 Unveiled, Nashville',desc:'Keynote · demo lab · enrollment opens', critical:true },
+];
+
+function renderTimeline() {
+  const h = MILESTONES.map(m => {
+    const d = new Date(m.date);
+    const cls = m.critical ? 'critical' : d < TODAY ? 'done' : 'future';
+    return `<div class="tl-item">
+      <div class="tl-date-col">${m.label}</div>
+      <div class="tl-dot-wrap"><div class="tl-dot ${cls}"></div></div>
+      <div class="tl-body"><div class="tl-title">${m.title}</div><div class="tl-desc">${m.desc}</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('tl-body').innerHTML = h;
+}
+
+// ── STATS ────────────────────────────────────────────────
+function renderStats() {
+  const dDone = countDone(TASKS.deliverables);
+  const gDone = countDone(TASKS.governance);
+  const total = TASKS.deliverables.length + TASKS.governance.length;
+  const done  = dDone + gDone;
+  const pct   = Math.round(done / total * 100);
+  document.getElementById('s-pct').textContent = pct + '%';
+  document.getElementById('s-bar').style.width = pct + '%';
+  document.getElementById('s-sub').textContent = `${done} of ${total} tasks complete`;
+  document.getElementById('s-del').textContent = `${dDone}/12`;
+  document.getElementById('s-gov').textContent = `${gDone}/6`;
+}
+
+// ── AI CHAT (works inside Claude / deployed with API key) ─
+const history = [];
+
+async function ask() {
+  const inp = document.getElementById('ai-in');
+  const btn = document.getElementById('ai-btn');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = ''; btn.disabled = true;
+
+  addBubble('user', msg);
+  history.push({ role:'user', content:msg });
+
+  const typingEl = addBubble('bot', '<div class="spin"></div>');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:`You are a concise assistant for Deka OS 26 — a franchise operating system for the Deka brand (DekaLash + Deka+), launching at National Convention in Nashville on October 18, 2026. Edition Lock is August 23. All tasks are currently pre-open (not started). Governance must be seated by Jun 30 / Jul 11. Key mantra: "Corporate ships the OS. Franchisees run their business on it." Be direct, 2–4 sentences unless a list is genuinely clearer.`,
+        messages: history,
+        mcp_servers:[{ type:'url', url:'https://mcp.clickup.com/mcp', name:'clickup' }]
+      })
+    });
+    const data = await res.json();
+    const reply = (data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('').trim()
+      || "Couldn't get a response — check the console.";
+    typingEl.innerHTML = `<div class="bubble-from">Deka OS Assistant</div>${reply}`;
+    history.push({ role:'assistant', content:reply });
+  } catch(e) {
+    typingEl.innerHTML = `<div class="bubble-from">Note</div>The AI chat requires the Claude environment or a deployed API key. Everything else on this page works offline.`;
+  }
+
+  btn.disabled = false;
+  const t = document.getElementById('ai-thread');
+  t.scrollTop = t.scrollHeight;
+}
+
+function addBubble(role, html) {
+  const t = document.getElementById('ai-thread');
+  const d = document.createElement('div');
+  d.className = `bubble ${role}`;
+  if (role === 'bot') d.innerHTML = `<div class="bubble-from">Deka OS Assistant</div>${html}`;
+  else d.textContent = html;
+  t.appendChild(d);
+  t.scrollTop = t.scrollHeight;
+  return d;
+}
+
+document.getElementById('ai-btn').addEventListener('click', ask);
+document.getElementById('ai-in').addEventListener('keydown', e => { if (e.key==='Enter') ask(); });
+
+// ── INIT ─────────────────────────────────────────────────
+initDates();
+renderDeliverables();
+renderPipeline();
+renderTimeline();
+renderStats();
+</script>
+</body>
+</html>
